@@ -6,7 +6,21 @@ base.height = 800;
 const con = base.getContext("2d");
 const FPS = 60;
 const dt = 1/FPS;
-let dz = 0;
+const vs = [
+    {x: -0.5, y:  0.5, z: 0.5},
+    {x:  0.5, y: -0.5, z: 0.5},
+    {x:  0.5, y:  0.5, z: 0.5},
+    {x: -0.5, y: -0.5, z: 0.5},
+
+    {x: -0.5, y:  0.5, z: -0.5},
+    {x:  0.5, y: -0.5, z: -0.5},
+    {x:  0.5, y:  0.5, z: -0.5},
+    {x: -0.5, y: -0.5, z: -0.5},
+]
+// _________________________________________________________
+//| seria como sair de dentro de um quadrado para poder ver |
+//|_________________________________________________________|
+let dz = 1;
 
 const fundo = "#1A1A1A";
 const interior = "#8DB600";
@@ -32,12 +46,13 @@ function pont({x, y}){
     //|__________________________________________________________|
     // ( Só pra lembrar oq é cada coisa)
 }
-// _______________________________________________________
-//| Como a função a de cima define tudo com (X) e (Y)     |
-//| essa função normaliza as cordenadas para que o Objeto |
-//| não fuja da Area (A)                                  |
-//|_______________________________________________________|
+
 function tela(p){
+    // _______________________________________________________
+    //| Como a função a de cima define tudo com (X) e (Y)     |
+    //| essa função normaliza as cordenadas para que o Objeto |
+    //| não fuja da Area (A)                                  |
+    //|_______________________________________________________|
     // ______________________________________________
     //| -1..1 => 0..2 => 0..1 => 0..* (e por ai vai) |
     //|______________________________________________|
@@ -59,14 +74,16 @@ function progecao({x,y,z}){
 //| mais distantes do centro parecerem menor colocando um (Z) maior  |
 //| se colocar um (Z) como 0 ele mão vai aparecer                    |
 //|__________________________________________________________________|
-function quadros(){
-    dz += 1/FPS;
-    limpar();
-    pont(tela(progecao({x: 0.5, y: -0.5, z: 1 + dz})));
-    pont(tela(progecao({x: -0.5, y: -0.5, z: 1 + dz})));
-    pont(tela(progecao({x: 0.5, y: 0.5, z: 1 + dz})));
-    pont(tela(progecao({x: -0.5, y: 0.5, z: 1 + dz})));
+function transa_Z({x, y, z}, dz){
+    return {x, y, z: z + dz};
+}
 
+function quadros(){
+    dz += 1*dt;
+    limpar();
+    for (const v of vs){
+    pont(tela(progecao(transa_Z(v, dz))));
+}
     setTimeout(quadros, 1000/FPS);
     // __________________________________________________________
     //| usando (DZ) ele esta fazendo uma pequena animação em     |
