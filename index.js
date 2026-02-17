@@ -117,6 +117,25 @@ function projecao({x,y,z}){
 //| se colocar um (Z) como 0 ele mão vai aparecer                    |
 //|__________________________________________________________________|
 
+function tela(p){
+    // _______________________________________________________
+    //| Como a função a de cima define tudo com (X) e (Y)     |
+    //| essa função normaliza as cordenadas para que o Objeto |
+    //| não fuja da Area (A)                                  |
+    //|_______________________________________________________|
+    // ______________________________________________
+    //| -1..1 => 0..2 => 0..1 => 0..* (e por ai vai) |
+    //|______________________________________________|
+    return {
+        x: (p.x + 1)/2*base.width,
+        y: (p.y + 1)/2*base.height,
+    }
+}
+
+// ==========================================================
+// 6. Funções auxiliares (geometria)
+// ==========================================================
+
 function limpar(){
     con.fillStyle = fundo;
     con.fillRect(0, 0, base.width, base.height);
@@ -143,21 +162,6 @@ function linha(p1, p2){
     con.moveTo(p1.x, p1.y);
     con.lineTo(p2.x, p2.y);
     con.stroke();
-}
-
-function tela(p){
-    // _______________________________________________________
-    //| Como a função a de cima define tudo com (X) e (Y)     |
-    //| essa função normaliza as cordenadas para que o Objeto |
-    //| não fuja da Area (A)                                  |
-    //|_______________________________________________________|
-    // ______________________________________________
-    //| -1..1 => 0..2 => 0..1 => 0..* (e por ai vai) |
-    //|______________________________________________|
-    return {
-        x: (p.x + 1)/2*base.width,
-        y: (p.y + 1)/2*base.height,
-    }
 }
 
 function quadros(){
