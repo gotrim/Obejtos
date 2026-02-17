@@ -1,4 +1,4 @@
-# 🧊 Estudo 3D
+# Estudo 3D
 
 <p align="center">
   <a href="https://gotrim.github.io/Obejtos/">
@@ -15,7 +15,7 @@
 
 ---
 
-## 📌 Sobre o projeto
+## Sobre o projeto
 
 Este é um experimento simples de **renderização 3D** utilizando apenas o elemento `<canvas>` 2D do HTML5 e JavaScript puro. O objetivo é demonstrar conceitos de:
 
@@ -28,7 +28,7 @@ O código é **totalmente comentado em português**, facilitando o entendimento 
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 - ✅ Cubo 3D rotacionando continuamente  
 - ✅ Botões para **mudar direção** (horário / anti-horário)  
@@ -38,7 +38,7 @@ O código é **totalmente comentado em português**, facilitando o entendimento 
 
 ---
 
-## 🚀 Demonstração ao vivo
+## Demonstração ao vivo
 
 Acesse a versão interativa clicando no GIF acima ou no link abaixo:
 
@@ -46,7 +46,7 @@ Acesse a versão interativa clicando no GIF acima ou no link abaixo:
 
 ---
 
-## 🛠️ Como executar localmente
+## Como executar localmente
 
 1. Clone o repositório:
    ```bash
