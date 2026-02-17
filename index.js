@@ -19,10 +19,11 @@ base.height = 400;
 // ==========================================================
 
 const bntEsq = document.getElementById("bntEsq");
-const bntDir = document.getElementById("bntEsq");
+const bntDir = document.getElementById("bntDir");
+const bntPara = document.getElementById("bntPara");
 
-if(!bntDir || !bntEsq) {
-    console,error("Botões não encontrados");
+if(!bntDir || !bntEsq || !bntPara) {
+    console.error("Botões não encontrados");
 }
 
 // ==========================================================
@@ -33,11 +34,13 @@ const con = base.getContext("2d");
 const FPS = 30;
 const dt = 1/FPS;
 
-//                 _______________________________________________________________
-let dz = 1;     //| Distancia da câmera (dependendo do tamanho do Obejto diminua) |
-let angulo = 0; //| ângullo atual de rotação                                      |
-let direcao = 1;//| 1 = hhorário, -1 = anti-horario                               |
-//                |_______________________________________________________________|
+//                       _______________________________________________________________
+let dz = 1;           //| Distancia da câmera (dependendo do tamanho do Obejto diminua) |
+let angulo = 0;       //| Ângulo atual de rotação                                       |
+let direcao = 1;      //| 1 = horário, -1 = anti-horario                                |
+let ultimaDirecao = 1 //|                                                               |
+let pausa = false     //| Para a animção de rotação                                     |
+//                      |_______________________________________________________________|
 
 const fundo = "#1A1A1A";
 const interior = "#8DB600";
@@ -101,10 +104,11 @@ function transa_Z({x, y, z}, dz){
 }
 
 function projecao({x,y,z}){
+    const zv = z === 0 ? 0.001 : z;
     return {
     //            ________________________
-        x: x/z,//| Evita divisão por zero |
-        y: y/z,//|________________________|
+        x: x/zv,//| Evita divisão por zero |
+        y: y/zv,//|________________________|
     }
     // ______________________________
     //| Projeção perspectiva simples |
@@ -216,10 +220,27 @@ function quadros(){
 }
 
 bntEsq.addEventListener("click", () => {
-    direcao = -1;
+    ultimaDirecao = -1;
+    if (!pausa){
+        direcao = -1;
+    }
 })
 bntDir.addEventListener("click", () => {
-    direcao = 1;
+    ultimaDirecao = 1;
+    if (!pausa){
+        direcao = 1;
+    }
+})
+bntPara.addEventListener("click", () => {
+    pausa = !pausa;
+    if (pausa){
+        direcao = 0;
+        bntPara.textContent = "▶";
+    } else {
+        direcao = ultimaDirecao;
+        bntPara.textContent = "||";
+
+    }
 })
 
 quadros();

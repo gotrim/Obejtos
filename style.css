@@ -1,7 +1,5 @@
-/*Fiquei com preguiça e peguei essa parte no gpt
-Css demora tempo e paciencia e não tenho tempo agora*/
-
 body {
+    font-family: 'Roboto', sans-serif;
     background: #0a0a0a;
     display: flex;
     flex-direction: column;
@@ -9,6 +7,10 @@ body {
     justify-content: center;
     min-height: 100vh;
     margin: 0;
+}
+h1 {
+ color: #8DB600;
+ text-shadow:2px 4px 2px #333;
 }
 canvas {
     border: 2px solid #333;
@@ -31,4 +33,7 @@ button {
 }
 button:hover {
     background: #a5d000;
+}
+#bntPara.pausa {
+    background-color: #ffaa00;
 }
