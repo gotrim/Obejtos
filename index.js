@@ -11,7 +11,7 @@ if (!base){
 base.width = 400;
 base.height = 400;
     // __________________
-    //| tamanho do cavas |
+    //| Tamanho do cavas |
     //|__________________|
 
 // ==========================================================
@@ -71,7 +71,7 @@ const fs = [
 ]
 
     // __________________________________________________________________________
-    //| nesse estudo do eu so utilizei duas faces e isso gerou um quadrado porem |
+    //| Nesse estudo do eu so utilizei duas faces e isso gerou um quadrado porem |
     //| com mais faces tudo é possivel                                           |
     //|__________________________________________________________________________|
 
@@ -140,7 +140,7 @@ function limpar(){
     con.fillStyle = fundo;
     con.fillRect(0, 0, base.width, base.height);
     // __________________________
-    //| reinicia o (X), (Y), (A) |
+    //| Reinicia o (X), (Y), (A) |
     //|__________________________|
 
 }
@@ -158,7 +158,7 @@ function pont({x, y}){
     con.fillStyle = interior;
     con.fillRect(x - a/2,  y - a/2,  a,  a);
     // ____________________________________________________________
-    //| função principal define o (X) eo (Y) assim como a Area (A) |
+    //| Função principal define o (X) eo (Y) assim como a Area (A) |
     //|____________________________________________________________|
     // __________________________________________________________
     //| X (que ta sendo diminido pela metade do espaço da tela)  |
@@ -203,13 +203,13 @@ function quadros(){
             linha(p1, p2);
         }
     // _________________________________________________________________
-    //| com isso ele vai pegar o array e fazer uma caminho entre eles   |
+    //| Com isso ele vai pegar o array e fazer uma caminho entre eles   |
     //| começando no ( 0 > 1 | 1 > 2 ) e por ai vai ate chegar no final |
     //|_________________________________________________________________|
     }
     setTimeout(quadros, 1000/FPS);
     // __________________________________________________________
-    //| usando (DZ) ele esta fazendo uma pequena animação em     |
+    //| Usando (DZ) ele esta fazendo uma pequena animação em     |
     //| quadros por segundos (FPS) distanciando todos os obejtos |
     //| com base na velocidade da passagem dos quadros (60)      |
     //|__________________________________________________________|
