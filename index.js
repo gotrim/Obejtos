@@ -1,34 +1,121 @@
+// ==========================================================
+// 1. Obtém os elementos do DOM após o carregamento da pagina
+// ==========================================================
+
 console.log(base);
+if (!base){
+    console.error("Canvas não encontrado");
+    throw new Error("Canvas ausente");
+}
 
 base.width = 800;
 base.height = 800;
+// __________________
+//| tamanho do cavas |
+//|__________________|
 
-let dz = 1;
-let angulo = 0;
+// ==========================================================
+// 2. Elemento de controle
+// ==========================================================
+
+const bntEsq = document.getElementById("bntEsq");
+const bntDir = document.getElementById("bntEsq");
+
+if(!bntDir || !bntEsq) {
+    console,error("Botões não encontrados");
+}
+
+// ==========================================================
+// 3. Contexto de desenho e variáveis globais
+// ==========================================================
 
 const con = base.getContext("2d");
 const FPS = 30;
 const dt = 1/FPS;
-const vs = [
-    {x: -0.25, y:  0.25, z:  0.25},
-    {x:  0.25, y: -0.25, z:  0.25},
-    {x:  0.25, y:  0.25, z:  0.25},
-    {x: -0.25, y: -0.25, z:  0.25},
 
-    {x: -0.25, y:  0.25, z: -0.25},
-    {x:  0.25, y: -0.25, z: -0.25},
-    {x:  0.25, y:  0.25, z: -0.25},
-    {x: -0.25, y: -0.25, z: -0.25},
-]                           
-const fs = [
-    [0, 1, 2, 3],
-    [4, 5, 6, 7],
-]
+//                           _______________________________________________________________
+let dz = 1;               //| Distancia da câmera (dependendo do tamanho do Obejto diminua) |
+let angulo = 0;           //| ângullo atual de rotação                                      |
+let direcao = 1;          //| 1 = hhorário, -1 = anti-horario                               |
+//                          |_______________________________________________________________|
 
 const fundo = "#1A1A1A";
 const interior = "#8DB600";
 
-console.log(con);
+// ==========================================================
+// 4. Vértices do Objeto
+// ==========================================================
+
+const vs = [
+    {x:  0.25, y:  0.25, z:  0.25},
+    {x: -0.25, y:  0.25, z:  0.25},
+    {x: -0.25, y: -0.25, z:  0.25},
+    {x:  0.25, y: -0.25, z:  0.25},
+
+    {x:  0.25, y:  0.25, z: -0.25},
+    {x: -0.25, y:  0.25, z: -0.25},
+    {x: -0.25, y: -0.25, z: -0.25},
+    {x:  0.25, y: -0.25, z: -0.25},
+];
+
+// ==========================================================
+// 5. Restas (Indices para desenhar linhas)
+// ==========================================================
+
+const fs = [
+//                                     _______________
+    [0, 1], [1, 2], [2, 3], [3, 0], //| Face frontal  |
+    [4, 5], [5, 6], [6, 7], [7, 4], //| Face traseira |
+    [0, 4], [1, 5], [2, 6], [3, 7], //| laterais      |
+//                                    |_______________|
+]
+
+// __________________________________________________________________________
+//| nesse estudo do eu so utilizei duas faces e isso gerou um quadrado porem |
+//| com mais faces tudo é possivel                                           |
+//|__________________________________________________________________________|
+
+
+// ==========================================================
+// 6. Funções auxiliares (geometria)
+// ==========================================================
+
+function rotacao_xz({x, y, z}, angulo){
+    const c = Math.cos(angulo);
+    const s = Math.sin(angulo);
+    return {
+        x : x * c - z * s,
+        y : y,
+        z : x * s + z * c,
+    };
+// __________________________________________
+//| Rotação no plano XZ (em torno do eixo Y) |
+//|__________________________________________|
+}
+
+function transa_Z({x, y, z}, dz){
+    return {x, y, z: z + dz};
+// _____________________________________
+//| Translação em Z (afastar/aproximar) |
+//|_____________________________________|
+}
+
+function projecao({x,y,z}){
+    return {
+    //            ________________________
+        x: x/z,//| Evita divisão por zero |
+        y: y/z,//|________________________|
+    }
+// ______________________________
+//| Projeção perspectiva simples |
+//|______________________________|
+}
+// __________________________________________________________________
+//| O elemento (Z) controla o plano visto de frente, fazendo objetos |
+//| mais proximos do centro parecerem maior colocando um (Z) menor e |
+//| mais distantes do centro parecerem menor colocando um (Z) maior  |
+//| se colocar um (Z) como 0 ele mão vai aparecer                    |
+//|__________________________________________________________________|
 
 function limpar(){
     con.fillStyle = fundo;
@@ -73,52 +160,20 @@ function tela(p){
     }
 }
 
-function progecao({x,y,z}){
-    return {
-        x: x/z,
-        y: y/z,
-    }
-}
-// __________________________________________________________________
-//| O elemento (Z) controla o plano visto de frente, fazendo objetos |
-//| mais proximos do centro parecerem maior colocando um (Z) menor e |
-//| mais distantes do centro parecerem menor colocando um (Z) maior  |
-//| se colocar um (Z) como 0 ele mão vai aparecer                    |
-//|__________________________________________________________________|
-
-function rotacao_xz({x, y, z}, angulo){
-    const c = Math.cos(angulo);
-    const s = Math.sin(angulo);
-    return {
-        x : x*c - z*s,
-        y,
-        z : x*s + z*c,
-    };
-// ___________________________________________________
-//| Aqui iremos rotacionar vetores para, que possamos |
-//| ver melhor o Objeto que temos                     |
-//|___________________________________________________|
-}
-
-function transa_Z({x, y, z}, dz){
-    return {x, y, z: z + dz};
-}
-
 function quadros(){
     //dz += 1*dt; (serve para distanciar o Objeto)
     angulo += Math.PI*dt;
     limpar();
-    for (const v of vs){
-    pont(tela(progecao(transa_Z(rotacao_xz(v, angulo), dz))));
-    }
+    // for (const v of vs){
+    // pont(tela(projecao(transa_Z(rotacao_xz(v, angulo), dz))));
+    // } (serve para mostrar os pontos do objeto)
     for (const f of fs){
         for (let i = 0; i < f.length; ++i){
             const a = vs[f[i]];
             const b = vs[f[(i+1)%f.length]];
-            linha (
-                tela(progecao(transa_Z(rotacao_xz(a, angulo), dz))),
-                tela(progecao(transa_Z(rotacao_xz(b, angulo), dz))),
-            )
+            const p1 = tela(projecao(transa_Z(rotacao_xz(a, angulo), dz)));
+            const p2 = tela(projecao(transa_Z(rotacao_xz(b, angulo), dz)));
+            linha(p1, p2);
         }
     // _________________________________________________________________
     //| com isso ele vai pegar o array e fazer uma caminho entre eles   |
@@ -133,4 +188,11 @@ function quadros(){
     //|__________________________________________________________|
 }
 
-setTimeout(quadros, 1000/FPS);
+bntEsq.addEventListener("click", () => {
+    direcao = -1;
+})
+bntDir.addEventListener("click", () => {
+    direcao = 1;
+})
+
+quadros();

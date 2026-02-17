@@ -1,0 +1,34 @@
+/*Fiquei com preguiça e peguei essa parte no gpt
+Css demora tempo e paciencia e não tenho tempo agora*/
+
+body {
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+}
+canvas {
+    border: 2px solid #333;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+.controles {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+}
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #8DB600;
+    border: none;
+    border-radius: 5px;
+    color: #1A1A1A;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+button:hover {
+    background: #a5d000;
+}
