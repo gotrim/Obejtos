@@ -8,11 +8,11 @@ if (!base){
     throw new Error("Canvas ausente");
 }
 
-base.width = 800;
-base.height = 800;
-// __________________
-//| tamanho do cavas |
-//|__________________|
+base.width = 400;
+base.height = 400;
+    // __________________
+    //| tamanho do cavas |
+    //|__________________|
 
 // ==========================================================
 // 2. Elemento de controle
@@ -33,11 +33,11 @@ const con = base.getContext("2d");
 const FPS = 30;
 const dt = 1/FPS;
 
-//                           _______________________________________________________________
-let dz = 1;               //| Distancia da câmera (dependendo do tamanho do Obejto diminua) |
-let angulo = 0;           //| ângullo atual de rotação                                      |
-let direcao = 1;          //| 1 = hhorário, -1 = anti-horario                               |
-//                          |_______________________________________________________________|
+//                 _______________________________________________________________
+let dz = 1;     //| Distancia da câmera (dependendo do tamanho do Obejto diminua) |
+let angulo = 0; //| ângullo atual de rotação                                      |
+let direcao = 1;//| 1 = hhorário, -1 = anti-horario                               |
+//                |_______________________________________________________________|
 
 const fundo = "#1A1A1A";
 const interior = "#8DB600";
@@ -70,10 +70,10 @@ const fs = [
 //                                    |_______________|
 ]
 
-// __________________________________________________________________________
-//| nesse estudo do eu so utilizei duas faces e isso gerou um quadrado porem |
-//| com mais faces tudo é possivel                                           |
-//|__________________________________________________________________________|
+    // __________________________________________________________________________
+    //| nesse estudo do eu so utilizei duas faces e isso gerou um quadrado porem |
+    //| com mais faces tudo é possivel                                           |
+    //|__________________________________________________________________________|
 
 
 // ==========================================================
@@ -88,16 +88,16 @@ function rotacao_xz({x, y, z}, angulo){
         y : y,
         z : x * s + z * c,
     };
-// __________________________________________
-//| Rotação no plano XZ (em torno do eixo Y) |
-//|__________________________________________|
+    // __________________________________________
+    //| Rotação no plano XZ (em torno do eixo Y) |
+    //|__________________________________________|
 }
 
 function transa_Z({x, y, z}, dz){
     return {x, y, z: z + dz};
-// _____________________________________
-//| Translação em Z (afastar/aproximar) |
-//|_____________________________________|
+    // _____________________________________
+    //| Translação em Z (afastar/aproximar) |
+    //|_____________________________________|
 }
 
 function projecao({x,y,z}){
@@ -106,16 +106,16 @@ function projecao({x,y,z}){
         x: x/z,//| Evita divisão por zero |
         y: y/z,//|________________________|
     }
-// ______________________________
-//| Projeção perspectiva simples |
-//|______________________________|
+    // ______________________________
+    //| Projeção perspectiva simples |
+    //|______________________________|
 }
-// __________________________________________________________________
-//| O elemento (Z) controla o plano visto de frente, fazendo objetos |
-//| mais proximos do centro parecerem maior colocando um (Z) menor e |
-//| mais distantes do centro parecerem menor colocando um (Z) maior  |
-//| se colocar um (Z) como 0 ele mão vai aparecer                    |
-//|__________________________________________________________________|
+    // __________________________________________________________________
+    //| O elemento (Z) controla o plano visto de frente, fazendo objetos |
+    //| mais proximos do centro parecerem maior colocando um (Z) menor e |
+    //| mais distantes do centro parecerem menor colocando um (Z) maior  |
+    //| se colocar um (Z) como 0 ele mão vai aparecer                    |
+    //|__________________________________________________________________|
 
 function tela(p){
     // _______________________________________________________
@@ -133,27 +133,16 @@ function tela(p){
 }
 
 // ==========================================================
-// 6. Funções auxiliares (geometria)
+// 7. Funções de desenho
 // ==========================================================
 
 function limpar(){
     con.fillStyle = fundo;
     con.fillRect(0, 0, base.width, base.height);
-}
-// ____________________________________________________________
-//| função principal define o (X) eo (Y) assim como a Area (A) |
-//|____________________________________________________________|
-function pont({x, y}){
-    const a = 20;
-    con.fillStyle = interior;
-    con.fillRect(x - a/2,  y - a/2,  a,  a);
-    // __________________________________________________________
-    //| X (que ta sendo diminido pela metade do espaço da tela)  |
-    //| y (mesma coisa)                                          |
-    //| Largura maxima do espaço                                 |
-    //| Altura maxima do espaço                                  |
-    //|__________________________________________________________|
-    // ( Só pra lembrar oq é cada coisa)
+    // __________________________
+    //| reinicia o (X), (Y), (A) |
+    //|__________________________|
+
 }
 
 function linha(p1, p2){
@@ -164,13 +153,47 @@ function linha(p1, p2){
     con.stroke();
 }
 
-function quadros(){
-    //dz += 1*dt; (serve para distanciar o Objeto)
-    angulo += Math.PI*dt;
-    limpar();
-    // for (const v of vs){
+function pont({x, y}){
+    const a = 20;
+    con.fillStyle = interior;
+    con.fillRect(x - a/2,  y - a/2,  a,  a);
+    // ____________________________________________________________
+    //| função principal define o (X) eo (Y) assim como a Area (A) |
+    //|____________________________________________________________|
+    // __________________________________________________________
+    //| X (que ta sendo diminido pela metade do espaço da tela)  |
+    //| y (mesma coisa)                                          |
+    //| Largura maxima do espaço                                 |
+    //| Altura maxima do espaço                                  |
+    //|__________________________________________________________|
+    // ( Só pra lembrar oq é cada coisa)
+}
+
+// for (const v of vs){
     // pont(tela(projecao(transa_Z(rotacao_xz(v, angulo), dz))));
-    // } (serve para mostrar os pontos do objeto)
+    // }
+    // _________________________________
+    //| Desenha as vértices como pontos |
+    //|_________________________________|
+
+// ==========================================================
+// 8. Loops principais de animação
+// ==========================================================
+
+function quadros(){
+    //dz += 1*dt; 
+    // _______________________________
+    //| Distancia e aproxima o Objeto |
+    //|_______________________________|
+
+    angulo += direcao * Math.PI * dt;
+    // ______________________________________
+    //| Rotaciona e muda a direção do Obejto |
+    //|______________________________________|
+
+
+    limpar();
+    
     for (const f of fs){
         for (let i = 0; i < f.length; ++i){
             const a = vs[f[i]];
