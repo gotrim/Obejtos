@@ -33,8 +33,7 @@ O código é **totalmente comentado em português**, facilitando o entendimento 
 - ✅ Cubo 3D rotacionando continuamente  
 - ✅ Botões para **mudar direção** (horário / anti-horário)  
 - ✅ Botão de **pausa/play**  
-- ✅ Distância da câmera ajustável (variável `dz` no código)  
-- ✅ Fundo escuro com linhas em verde limão (`#8DB600`)  
+- ✅ Distância da câmera ajustável (variável `dz` no código)
 
 ---
 
@@ -43,11 +42,3 @@ O código é **totalmente comentado em português**, facilitando o entendimento 
 Acesse a versão interativa clicando no GIF acima ou no link abaixo:
 
 🔗 **[https://gotrim.github.io/Obejtos/](https://gotrim.github.io/Obejtos/)**
-
----
-
-## Como executar localmente
-
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/gotrim/Obejtos.git
