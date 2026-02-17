@@ -1,5 +1,3 @@
-const { createContext } = require("react");
-
 console.log(base);
 
 base.width = 800;
@@ -54,11 +52,11 @@ function pont({x, y}){
 }
 
 function linha(p1, p2){
-    ctx.strkeStyle = interior;
-    ctx.beginPath()
-    ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.stroke();
+    con.strokeStyle = interior;
+    con.beginPath()
+    con.moveTo(p1.x, p1.y);
+    con.lineTo(p2.x, p2.y);
+    con.stroke();
 }
 
 function tela(p){
@@ -115,12 +113,12 @@ function quadros(){
     pont(tela(progecao(transa_Z(rotacao_xz(v, angulo), dz))));
     }
     for (const f of fs){
-        for (let i = 0; i < f.length; ++1){
+        for (let i = 0; i < f.length; ++i){
             const a = vs[f[i]];
             const b = vs[f[(i+1)%f.length]];
             linha (
-                tela(progecao(transa_Z(rotacao_xz(a, angulo), dz)))),
-                tela(progecao(transa_Z(rotacao_xz(b, angulo), dz)))),
+                tela(progecao(transa_Z(rotacao_xz(a, angulo), dz))),
+                tela(progecao(transa_Z(rotacao_xz(b, angulo), dz))),
             )
         }
     // _________________________________________________________________
