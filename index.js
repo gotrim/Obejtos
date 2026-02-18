@@ -1,7 +1,7 @@
 // ==========================================================
 // 1. Obtém os elementos do DOM após o carregamento da pagina
 // ==========================================================
-
+const base = document.getElementById("base");
 console.log(base);
 if (!base){
     console.error("Canvas não encontrado");
@@ -157,10 +157,10 @@ function linha(p1, p2){
     con.stroke();
 }
 
-function pont({x, y}){
-    const a = 20;
-    con.fillStyle = interior;
-    con.fillRect(x - a/2,  y - a/2,  a,  a);
+// function pont({x, y}){
+//     const a = 20;
+//     con.fillStyle = interior;
+//     con.fillRect(x - a/2,  y - a/2,  a,  a);
     // ____________________________________________________________
     //| Função principal define o (X) eo (Y) assim como a Area (A) |
     //|____________________________________________________________|
@@ -171,7 +171,7 @@ function pont({x, y}){
     //| Altura maxima do espaço                                  |
     //|__________________________________________________________|
     // ( Só pra lembrar oq é cada coisa)
-}
+// }
 
 // for (const v of vs){
     // pont(tela(projecao(transa_Z(rotacao_xz(v, angulo), dz))));
@@ -235,10 +235,10 @@ bntPara.addEventListener("click", () => {
     pausa = !pausa;
     if (pausa){
         direcao = 0;
-        bntPara.textContent = "▶";
+        bntPara.textContent = "▸";
     } else {
         direcao = ultimaDirecao;
-        bntPara.textContent = "||";
+        bntPara.textContent = "⏸";
 
     }
 })
