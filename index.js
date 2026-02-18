@@ -3,36 +3,34 @@
 // ==========================================================
 const base = document.getElementById("base");
 console.log(base);
-if (!base){
+if (!base) {
     console.error("Canvas não encontrado");
     throw new Error("Canvas ausente");
 }
 
 base.width = 400;
 base.height = 400;
-    // __________________
-    //| Tamanho do cavas |
-    //|__________________|
+// __________________
+//| Tamanho do cavas |
+//|__________________|
 
 // ==========================================================
 // 2. Elemento de controle
 // ==========================================================
-
 const bntEsq = document.getElementById("bntEsq");
 const bntDir = document.getElementById("bntDir");
 const bntPara = document.getElementById("bntPara");
 
-if(!bntDir || !bntEsq || !bntPara) {
+if (!bntDir || !bntEsq || !bntPara) {
     console.error("Botões não encontrados");
 }
 
 // ==========================================================
 // 3. Contexto de desenho e variáveis globais
 // ==========================================================
-
 const con = base.getContext("2d");
 const FPS = 30;
-const dt = 1/FPS;
+const dt = 1 / FPS;
 
 //                       _______________________________________________________________
 let dz = 1;           //| Distancia da câmera (dependendo do tamanho do Obejto diminua) |
@@ -48,80 +46,76 @@ const interior = "#8DB600";
 // ==========================================================
 // 4. Vértices do Objeto
 // ==========================================================
-
 const vs = [
-    {x:  0.25, y:  0.25, z:  0.25},
-    {x: -0.25, y:  0.25, z:  0.25},
-    {x: -0.25, y: -0.25, z:  0.25},
-    {x:  0.25, y: -0.25, z:  0.25},
+    { x:  0.25, y:  0.25, z:  0.25 },
+    { x: -0.25, y:  0.25, z:  0.25 },
+    { x: -0.25, y: -0.25, z:  0.25 },
+    { x:  0.25, y: -0.25, z:  0.25 },
 
-    {x:  0.25, y:  0.25, z: -0.25},
-    {x: -0.25, y:  0.25, z: -0.25},
-    {x: -0.25, y: -0.25, z: -0.25},
-    {x:  0.25, y: -0.25, z: -0.25},
+    { x:  0.25, y:  0.25, z: -0.25 },
+    { x: -0.25, y:  0.25, z: -0.25 },
+    { x: -0.25, y: -0.25, z: -0.25 },
+    { x:  0.25, y: -0.25, z: -0.25 },
 ];
 
 // ==========================================================
 // 5. Restas (Indices para desenhar linhas)
 // ==========================================================
-
 const fs = [
-//                                     _______________
+    //                                 _______________
     [0, 1], [1, 2], [2, 3], [3, 0], //| Face frontal  |
     [4, 5], [5, 6], [6, 7], [7, 4], //| Face traseira |
     [0, 4], [1, 5], [2, 6], [3, 7], //| laterais      |
-//                                    |_______________|
-]
+    //                                |_______________|
+];
 
-    // __________________________________________________________________________
-    //| Nesse estudo do eu so utilizei duas faces e isso gerou um quadrado porem |
-    //| com mais faces tudo é possivel                                           |
-    //|__________________________________________________________________________|
-
+// __________________________________________________________________________
+//| Nesse estudo do eu so utilizei duas faces e isso gerou um quadrado porem |
+//| com mais faces tudo é possivel                                           |
+//|__________________________________________________________________________|
 
 // ==========================================================
 // 6. Funções auxiliares (geometria)
 // ==========================================================
-
-function rotacao_xz({x, y, z}, angulo){
+function rotacao_xz({ x, y, z }, angulo) {
     const c = Math.cos(angulo);
     const s = Math.sin(angulo);
     return {
-        x : x * c - z * s,
-        y : y,
-        z : x * s + z * c,
+        x: x * c - z * s,
+        y: y,
+        z: x * s + z * c,
     };
     // __________________________________________
     //| Rotação no plano XZ (em torno do eixo Y) |
     //|__________________________________________|
 }
 
-function transa_Z({x, y, z}, dz){
-    return {x, y, z: z + dz};
+function transa_Z({ x, y, z }, dz) {
+    return { x, y, z: z + dz };
     // _____________________________________
     //| Translação em Z (afastar/aproximar) |
     //|_____________________________________|
 }
 
-function projecao({x,y,z}){
+function projecao({ x, y, z }) {
     const zv = z === 0 ? 0.001 : z;
     return {
-    //            ________________________
-        x: x/zv,//| Evita divisão por zero |
-        y: y/zv,//|________________________|
-    }
+        //            ________________________
+        x: x / zv, //| Evita divisão por zero |
+        y: y / zv, //|________________________|
+    };
     // ______________________________
     //| Projeção perspectiva simples |
     //|______________________________|
 }
-    // __________________________________________________________________
-    //| O elemento (Z) controla o plano visto de frente, fazendo objetos |
-    //| mais proximos do centro parecerem maior colocando um (Z) menor e |
-    //| mais distantes do centro parecerem menor colocando um (Z) maior  |
-    //| se colocar um (Z) como 0 ele mão vai aparecer                    |
-    //|__________________________________________________________________|
+// __________________________________________________________________
+//| O elemento (Z) controla o plano visto de frente, fazendo objetos |
+//| mais proximos do centro parecerem maior colocando um (Z) menor e |
+//| mais distantes do centro parecerem menor colocando um (Z) maior  |
+//| se colocar um (Z) como 0 ele mão vai aparecer                    |
+//|__________________________________________________________________|
 
-function tela(p){
+function tela(p) {
     // _______________________________________________________
     //| Como a função a de cima define tudo com (X) e (Y)     |
     //| essa função normaliza as cordenadas para que o Objeto |
@@ -131,61 +125,58 @@ function tela(p){
     //| -1..1 => 0..2 => 0..1 => 0..* (e por ai vai) |
     //|______________________________________________|
     return {
-        x: (p.x + 1)/2*base.width,
-        y: (p.y + 1)/2*base.height,
-    }
+        x: (p.x + 1) / 2 * base.width,
+        y: (p.y + 1) / 2 * base.height,
+    };
 }
 
 // ==========================================================
 // 7. Funções de desenho
 // ==========================================================
-
-function limpar(){
+function limpar() {
     con.fillStyle = fundo;
     con.fillRect(0, 0, base.width, base.height);
     // __________________________
     //| Reinicia o (X), (Y), (A) |
     //|__________________________|
-
 }
 
-function linha(p1, p2){
+function linha(p1, p2) {
     con.strokeStyle = interior;
-    con.beginPath()
+    con.beginPath();
     con.moveTo(p1.x, p1.y);
     con.lineTo(p2.x, p2.y);
     con.stroke();
 }
 
-// function pont({x, y}){
+// function pont({ x, y }) {
 //     const a = 20;
 //     con.fillStyle = interior;
-//     con.fillRect(x - a/2,  y - a/2,  a,  a);
-    // ____________________________________________________________
-    //| Função principal define o (X) eo (Y) assim como a Area (A) |
-    //|____________________________________________________________|
-    // __________________________________________________________
-    //| X (que ta sendo diminido pela metade do espaço da tela)  |
-    //| y (mesma coisa)                                          |
-    //| Largura maxima do espaço                                 |
-    //| Altura maxima do espaço                                  |
-    //|__________________________________________________________|
-    // ( Só pra lembrar oq é cada coisa)
+//     con.fillRect(x - a / 2, y - a / 2, a, a);
+//     // ____________________________________________________________
+//     //| Função principal define o (X) eo (Y) assim como a Area (A) |
+//     //|____________________________________________________________|
+//     // __________________________________________________________
+//     //| X (que ta sendo diminido pela metade do espaço da tela)  |
+//     //| y (mesma coisa)                                          |
+//     //| Largura maxima do espaço                                 |
+//     //| Altura maxima do espaço                                  |
+//     //|__________________________________________________________|
+//     // ( Só pra lembrar oq é cada coisa)
 // }
 
-// for (const v of vs){
-    // pont(tela(projecao(transa_Z(rotacao_xz(v, angulo), dz))));
-    // }
-    // _________________________________
-    //| Desenha as vértices como pontos |
-    //|_________________________________|
+// for (const v of vs) {
+//     pont(tela(projecao(transa_Z(rotacao_xz(v, angulo), dz))));
+// }
+// _________________________________
+//| Desenha as vértices como pontos |
+//|_________________________________|
 
 // ==========================================================
 // 8. Loops principais de animação
 // ==========================================================
-
-function quadros(){
-    //dz += 1*dt; 
+function quadros() {
+    // dz += 1 * dt;
     // _______________________________
     //| Distancia e aproxima o Objeto |
     //|_______________________________|
@@ -195,23 +186,22 @@ function quadros(){
     //| Rotaciona e muda a direção do Obejto |
     //|______________________________________|
 
-
     limpar();
-    
-    for (const f of fs){
-        for (let i = 0; i < f.length; ++i){
+
+    for (const f of fs) {
+        for (let i = 0; i < f.length; ++i) {
             const a = vs[f[i]];
-            const b = vs[f[(i+1)%f.length]];
+            const b = vs[f[(i + 1) % f.length]];
             const p1 = tela(projecao(transa_Z(rotacao_xz(a, angulo), dz)));
             const p2 = tela(projecao(transa_Z(rotacao_xz(b, angulo), dz)));
             linha(p1, p2);
         }
-    // _________________________________________________________________
-    //| Com isso ele vai pegar o array e fazer uma caminho entre eles   |
-    //| começando no ( 0 > 1 | 1 > 2 ) e por ai vai ate chegar no final |
-    //|_________________________________________________________________|
+        // _________________________________________________________________
+        //| Com isso ele vai pegar o array e fazer uma caminho entre eles   |
+        //| começando no ( 0 > 1 | 1 > 2 ) e por ai vai ate chegar no final |
+        //|_________________________________________________________________|
     }
-    setTimeout(quadros, 1000/FPS);
+    setTimeout(quadros, 1000 / FPS);
     // __________________________________________________________
     //| Usando (DZ) ele esta fazendo uma pequena animação em     |
     //| quadros por segundos (FPS) distanciando todos os obejtos |
@@ -221,26 +211,25 @@ function quadros(){
 
 bntEsq.addEventListener("click", () => {
     ultimaDirecao = -1;
-    if (!pausa){
+    if (!pausa) {
         direcao = -1;
     }
-})
+});
 bntDir.addEventListener("click", () => {
     ultimaDirecao = 1;
-    if (!pausa){
+    if (!pausa) {
         direcao = 1;
     }
-})
+});
 bntPara.addEventListener("click", () => {
     pausa = !pausa;
-    if (pausa){
+    if (pausa) {
         direcao = 0;
         bntPara.textContent = "▸";
     } else {
         direcao = ultimaDirecao;
         bntPara.textContent = "⏸";
-
     }
-})
+});
 
 quadros();
