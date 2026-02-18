@@ -30,7 +30,7 @@ O código é **totalmente comentado em português**, facilitando o entendimento 
 
 ## Funcionalidades
 
-- ✅ Cubo 3D rotacionando continuamente  
+- ✅ 3D rotacionando continuamente  
 - ✅ Botões para **mudar direção** (horário / anti-horário)  
 - ✅ Botão de **pausa/play**  
 - ✅ Distância da câmera ajustável
