@@ -22,7 +22,7 @@ Este é um experimento simples de **renderização 3D** utilizando apenas o elem
 - Projeção perspectiva
 - Rotação 3D (plano XZ, em torno do eixo Y)
 - Animação com `requestAnimationFrame` / `setTimeout`
-- Interação via botões (direção, pausa)
+- Interação via botões
 
 O código é **totalmente comentado em português**, facilitando o entendimento de quem está começando no mundo da computação gráfica.
 
@@ -33,7 +33,7 @@ O código é **totalmente comentado em português**, facilitando o entendimento 
 - ✅ Cubo 3D rotacionando continuamente  
 - ✅ Botões para **mudar direção** (horário / anti-horário)  
 - ✅ Botão de **pausa/play**  
-- ✅ Distância da câmera ajustável (variável `dz` no código)
+- ✅ Distância da câmera ajustável
 
 ---
 

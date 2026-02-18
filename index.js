@@ -19,9 +19,12 @@ base.height = 400;
 // ==========================================================
 const bntEsq = document.getElementById("bntEsq");
 const bntDir = document.getElementById("bntDir");
+const bntCim = document.getElementById("bntCim");
+const bntBai = document.getElementById("bntBai");
 const bntPara = document.getElementById("bntPara");
+const bntVertices = document.getElementById("bntVertices"); // NOVO
 
-if (!bntDir || !bntEsq || !bntPara) {
+if (!bntDir || !bntEsq || !bntBai || !bntCim  || !bntPara || !bntVertices) {
     console.error("Botões não encontrados");
 }
 
@@ -31,13 +34,17 @@ if (!bntDir || !bntEsq || !bntPara) {
 const con = base.getContext("2d");
 const FPS = 30;
 const dt = 1 / FPS;
-
+const passo = Math.PI / 10;
+const Zoom = 0.2;
+const minDz = 0.2;
+const maxDz = 5;
 //                       _______________________________________________________________
 let dz = 1;           //| Distancia da câmera (dependendo do tamanho do Obejto diminua) |
 let angulo = 0;       //| Ângulo atual de rotação                                       |
 let direcao = 1;      //| 1 = horário, -1 = anti-horario                                |
-let ultimaDirecao = 1 //|                                                               |
-let pausa = false     //| Para a animção de rotação                                     |
+let ultimaDirecao = 1;//|                                                               |
+let pausa = false;    //| Para a animção de rotação                                     |
+let mostrarVertices = true; // NOVO: controle de visibilidade dos pontos
 //                      |_______________________________________________________________|
 
 const fundo = "#1A1A1A";
@@ -47,26 +54,30 @@ const interior = "#8DB600";
 // 4. Vértices do Objeto
 // ==========================================================
 const vs = [
-    { x:  0.25, y:  0.25, z:  0.25 },
-    { x: -0.25, y:  0.25, z:  0.25 },
-    { x: -0.25, y: -0.25, z:  0.25 },
-    { x:  0.25, y: -0.25, z:  0.25 },
-
-    { x:  0.25, y:  0.25, z: -0.25 },
-    { x: -0.25, y:  0.25, z: -0.25 },
-    { x: -0.25, y: -0.25, z: -0.25 },
-    { x:  0.25, y: -0.25, z: -0.25 },
+    //                                    ___
+    { x:  0.125, y:      0, z:  0.25 },//| 0 |
+    { x: -0.125, y:      0, z:  0.25 },//| 1 |
+    { x: -0.062, y: -0.125, z:  0.25 },//| 2 |
+    { x:  0.062, y: -0.125, z:  0.25 },//| 3 |
+    { x:      0, y:  0.125, z:  0.25 },//| 4 |
+    //                                   |---|
+    { x:  0.125, y:      0, z: -0.25 },//| 5 |
+    { x: -0.125, y:      0, z: -0.25 },//| 6 |
+    { x: -0.062, y: -0.125, z: -0.25 },//| 7 |
+    { x:  0.062, y: -0.125, z: -0.25 },//| 8 |
+    { x:      0, y:  0.125, z: -0.25 },//| 9 |
+    //                                   |___|
 ];
 
 // ==========================================================
 // 5. Restas (Indices para desenhar linhas)
 // ==========================================================
 const fs = [
-    //                                 _______________
-    [0, 1], [1, 2], [2, 3], [3, 0], //| Face frontal  |
-    [4, 5], [5, 6], [6, 7], [7, 4], //| Face traseira |
-    [0, 4], [1, 5], [2, 6], [3, 7], //| laterais      |
-    //                                |_______________|
+
+    [0, 4], [4, 1], [1, 2], [2, 3], [3, 0],
+    [5, 9], [9, 6], [6, 7], [7, 8], [8, 5],
+
+    [0, 5], [4, 9], [1, 6], [2, 7], [3, 8],
 ];
 
 // __________________________________________________________________________
@@ -149,25 +160,22 @@ function linha(p1, p2) {
     con.stroke();
 }
 
-// function pont({ x, y }) {
-//     const a = 20;
-//     con.fillStyle = interior;
-//     con.fillRect(x - a / 2, y - a / 2, a, a);
-//     // ____________________________________________________________
-//     //| Função principal define o (X) eo (Y) assim como a Area (A) |
-//     //|____________________________________________________________|
-//     // __________________________________________________________
-//     //| X (que ta sendo diminido pela metade do espaço da tela)  |
-//     //| y (mesma coisa)                                          |
-//     //| Largura maxima do espaço                                 |
-//     //| Altura maxima do espaço                                  |
-//     //|__________________________________________________________|
-//     // ( Só pra lembrar oq é cada coisa)
-// }
+function pont({ x, y }) {
+    const a = 10;
+    con.fillStyle = interior;
+    con.fillRect(x - a / 2, y - a / 2, a, a);
+    // ____________________________________________________________
+    //| Função principal define o (X) eo (Y) assim como a Area (A) |
+    //|____________________________________________________________|
+    // __________________________________________________________
+    //| X (que ta sendo diminido pela metade do espaço da tela)  |
+    //| y (mesma coisa)                                          |
+    //| Largura maxima do espaço                                 |
+    //| Altura maxima do espaço                                  |
+    //|__________________________________________________________|
+    // ( Só pra lembrar oq é cada coisa)
+}
 
-// for (const v of vs) {
-//     pont(tela(projecao(transa_Z(rotacao_xz(v, angulo), dz))));
-// }
 // _________________________________
 //| Desenha as vértices como pontos |
 //|_________________________________|
@@ -201,26 +209,52 @@ function quadros() {
         //| começando no ( 0 > 1 | 1 > 2 ) e por ai vai ate chegar no final |
         //|_________________________________________________________________|
     }
+
+    if (mostrarVertices) {
+        for (const v of vs) {
+            pont(tela(projecao(transa_Z(rotacao_xz(v, angulo), dz))));
+        }
+    }
+
     setTimeout(quadros, 1000 / FPS);
     // __________________________________________________________
     //| Usando (DZ) ele esta fazendo uma pequena animação em     |
     //| quadros por segundos (FPS) distanciando todos os obejtos |
     //| com base na velocidade da passagem dos quadros (60)      |
+    //| (desativei isso mas ainda ta no codigo se procurar acha) |
     //|__________________________________________________________|
 }
 
+// ==========================================================
+// 9. Botões
+// ==========================================================
+
 bntEsq.addEventListener("click", () => {
     ultimaDirecao = -1;
-    if (!pausa) {
+    if (pausa) {
+        angulo -= passo;
+    } else {
         direcao = -1;
     }
 });
+
 bntDir.addEventListener("click", () => {
     ultimaDirecao = 1;
-    if (!pausa) {
+     if (pausa) {
+        angulo += passo;
+    } else {
         direcao = 1;
     }
 });
+
+bntCim.addEventListener("click", () => {
+    dz = Math.max(dz - Zoom, minDz);
+});
+
+bntBai.addEventListener("click", () => {
+    dz = Math.min(dz + Zoom, maxDz); 
+});
+
 bntPara.addEventListener("click", () => {
     pausa = !pausa;
     if (pausa) {
@@ -231,5 +265,14 @@ bntPara.addEventListener("click", () => {
         bntPara.textContent = "⏸";
     }
 });
+
+bntVertices.addEventListener("click", () => {
+    mostrarVertices = !mostrarVertices;
+    bntVertices.textContent = mostrarVertices ? "◉" : "○";
+});
+
+// ==========================================================
+// 10. Inicia
+// ==========================================================
 
 quadros();

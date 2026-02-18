@@ -7,71 +7,97 @@ body {
     justify-content: center;
     min-height: 100vh;
     margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
 }
+
 h1 {
     color: #8DB600;
     text-shadow: 2px 4px 2px #333;
+    margin-bottom: 30px;
+    text-align: center;
 }
+
+.principal {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(20px, 5vw, 40px);
+    width: 100%;
+    max-width: 1200px;
+    flex-wrap: nowrap;
+}
+
 canvas {
     border: 2px solid #333;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
-.controles {
-    margin-top: 20px;
-    display: flex;
-    gap: 20px;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    aspect-ratio: 1/1;
 }
 
+.controles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: clamp(8px, 2vw, 12px);
+    width: 100%;               
+    max-width: 340px;      
+    flex-shrink: 1;
+    background: #1A1A1A;
+    border: 2px solid #333;
+    padding: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+}
+
+/* Posicionamento dos botões na grade 3x3 */
+#bntVertices { grid-column: 1; grid-row: 1; } /* canto superior esquerdo */
+#bntCim      { grid-column: 2; grid-row: 1; }
+#bntEsq      { grid-column: 1; grid-row: 2; }
+#bntPara     { grid-column: 2; grid-row: 2; }
+#bntDir      { grid-column: 3; grid-row: 2; }
+#bntBai      { grid-column: 2; grid-row: 3; }
+
+/* Estilo unificado para todos os botões */
 button {
-    padding: 10px 20px;
-    font-size: 20px;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1/1;
+    font-size: clamp(20px, 5vw, 32px);
     background: #8DB600;
     border: none;
-    border-radius: 5px;
+    border-radius: 12px;
     color: #1A1A1A;
     cursor: pointer;
-    transition: background 0.3s;
-}
-button:hover {
-    background: #4f6200;
-}
-
-.bntPara {
-    border: none;
-    width: 45px;
-    height: 45px;
-    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    transition: background 0.3s, transform 0.2s;
-    padding: 0; 
 }
 
-.controles button:hover {
+button:hover {
     background: #4f6200;
-    transform: scale(1);
+    transform: scale(1.05);
 }
 
-.controles button:active {
+button:active {
     transform: scale(0.95);
 }
 
-.bntPara .icone {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    line-height: 1;    
-    color: white;         
-}
-
-.bntPara .play {
-    font-size: 70px;       
-}
-
-.bntPara .pause {
-    font-size: 58px;      
+/* Ajuste fino para telas pequenas */
+@media (max-width: 600px) {
+    .principal {
+        gap: 15px;
+    }
+    canvas {
+        max-width: 250px;
+    }
+    .controles {
+        max-width: 200px;
+    }
 }
