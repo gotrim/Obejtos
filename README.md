@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://gotrim.github.io/Obejtos/">
-    <img src="assets/CuBo.gif" alt="Cubo 3D girando" width="400"/>
+    <img src="assets/CuBo.gif" alt="Cubo 3D girando" style="width: 50%; height: auto/>
   </a>
 </p>
 
