@@ -21,10 +21,13 @@ const bntEsq = document.getElementById("bntEsq");
 const bntDir = document.getElementById("bntDir");
 const bntCim = document.getElementById("bntCim");
 const bntBai = document.getElementById("bntBai");
+const bntPos = document.getElementById("bntPos");
+const bntNeg = document.getElementById("bntNeg");
 const bntPara = document.getElementById("bntPara");
+const bntReset = document.getElementById("bntReset");
 const bntVertices = document.getElementById("bntVertices");
 
-if (!bntDir || !bntEsq || !bntBai || !bntCim || !bntPara || !bntVertices) {
+if (!bntReset || !bntDir|| !bntPos || !bntNeg || !bntEsq || !bntBai || !bntCim || !bntPara || !bntVertices) {
     console.error("Botões não encontrados");
 }
 
@@ -32,24 +35,27 @@ if (!bntDir || !bntEsq || !bntBai || !bntCim || !bntPara || !bntVertices) {
 // 3. Contexto de desenho e variáveis globais
 // ==========================================================
 const con = base.getContext("2d");
-    //                         _______________________________________________________________
-const FPS = 30;             //|Quadros por segundo                                            |
-const dt = 1 / FPS;         //|Intervalo de tempo entre quadros                               |
-const passo = Math.PI / 10; //|Passo de rotação manual (18°)                                  |
-const Zoom = 0.2;           //|Passo de zoom                                                  |
-const minDz = 0.2;          //|Distância mínima da câmera                                     |
-const maxDz = 5;            //|Distância máxima da câmera                                     |
-    //                        |---------------------------------------------------------------|
+                            // _______________________________________________________________
+const FPS = 30;             //| Quadros por segundo                                           |
+const dt = 1 / FPS;         //| Intervalo de tempo entre quadros                              |
+const passo = Math.PI / 10; //| Passo de rotação manual (18°)                                 |
+const Zoom = 0.2;           //| Passo de zoom                                                 |
+const minDz = 0.2;          //| Distância mínima da câmera                                    |
+const maxDz = 5;            //| Distância máxima da câmera                                    |
+                            //|---------------------------------------------------------------|
 let dz = 1;                 //| Distância da câmera (ajusta o tamanho aparente do objeto)     |
-let angulo = 0;             //| Ângulo atual de rotação (em radianos)                         |
-let direcao = 1;            //| 1 = horário, -1 = anti-horário, 0 = parado                    |
-let ultimaDirecao = 1;      //| Última direção ativa (para quando a pausa é desligada)        |
+let angulo = 0;             //| Ângulo atual de rotação (Y)                                   |
+let anguloX = 0;            //| Ângulo atual de rotação (X)                                   |
+let direcao = 0;            //| 1 = horário, -1 = anti-horário, 0 = parado          (Y) (⬅)  |
+let direcaoX = 0;           //| 1 = horário, -1 = anti-horário, 0 = parado          (X) (⬆)  |
+let ultimaDir = 1;          //| Última direção ativa (para quando a pausa é desligada)        |
+let ultimaDirX = 1;         //| Última direção ativa (para quando a pausa é desligada)       |
 let pausa = false;          //| Controla se a animação de rotação está pausada                |
-let mostrarVertices = true; //| Exibe ou oculta os vértices (pontos)                          |
-    //                        |_______________________________________________________________|
+let mostrarVertices = false; //| Exibe ou oculta os vértices (pontos)                          |
+                            //|_______________________________________________________________|
 
 const fundo = "#1A1A1A";
-const interior = "#8DB600";
+const interior = "#72F2DB";
 
 // ==========================================================
 // 4. Vértices do Objeto (coordenadas 3D)
@@ -87,59 +93,69 @@ const fs = [
     //|_________________________________________________________________________|
 
 // ==========================================================
-// 6. Funções auxiliares (geometria)
+// 6. Buffers reutilizáveis (otimização de desempenho)
 // ==========================================================
-function rotacao_xz({ x, y, z }, angulo) {
+                                    // __________________________________________________________________
+                                    //| Em vez de criar novos objetos a cada quadro, pré-alocamos arrays |
+                                    //| com objetos fixos que serão atualizados in-place.                |
+const numVerts = vs.length;         //|------------------------------------------------------------------|
+const lugar = new Array(numVerts);  //| coordenadas 3D após rotação e translação                         |
+const tela = new Array(numVerts); //| coordenadas 2D após projeção e mapeamento para tela              |
+                                    //|__________________________________________________________________|
+for (let i = 0; i < numVerts; i++) {
+    lugar[i] = { x: 0, y: 0, z: 0 };
+    tela[i] = { x: 0, y: 0 };
+}
+
+// ==========================================================
+// 7. Funções de transformação 
+// ==========================================================
+function atualiza() {
     const c = Math.cos(angulo);
     const s = Math.sin(angulo);
-    return {
-        x: x * c - z * s,
-        y: y,
-        z: x * s + z * c,
-    };
-    // __________________________________________
-    //| Rotação no plano XZ (em torno do eixo Y) |
-    //|__________________________________________|
+    const cX = Math.cos(anguloX);
+    const sX = Math.sin(anguloX);
+    
+    for (let i = 0; i < numVerts; i++) {
+        const v = vs[i];
+        let x = v.x;
+        let y = v.y;
+        let z = v.z;
+        
+        const x1 = x * c - z * s;                                         
+        const z1 = x * s + z * c;
+        const y1 = y; 
+
+        const y2 = y1 * cX - z1 * sX;                                         
+        const z2 = y1 * sX + z1 * cX;
+        const x2 = x1;
+        
+        const lug = lugar[i];
+        lug.x = x2;
+        lug.y = y2;
+        lug.z = z2 + dz;
+    }
 }
 
-function transa_Z({ x, y, z }, dz) {
-    return { x, y, z: z + dz };
-    // _____________________________________
-    //| Translação em Z (afastar/aproximar) |
-    //|_____________________________________|
-}
-
-function projecao({ x, y, z }) {
-    //                                 __________________________________________________
-    //                                | Projeção perspectiva simples: divide x e y por z |
-    //                                | Quanto menor z, maior o objeto parece            |
-    const zv = z === 0 ? 0.001 : z; //|--------------------------------------------------|
-    return {//                        | Evita divisão por zero                           |
-        x: x / zv,//                  |__________________________________________________|
-        y: y / zv,
-    };
-    // ______________________________
-    //| Projeção perspectiva simples |
-    //|______________________________|
-}
-
-function tela(p) {
-    // __________________________________________________________________
-    //| Converte coordenadas normalizadas (-1 a 1) para pixels no canvas |
-    //| A fórmula (p + 1)/2 transforma o intervalo [-1,1] em [0,1]       |
-    //| Depois multiplica pela largura/altura do canvas                  |
-    //|__________________________________________________________________|
-    return {
-        x: (p.x + 1) / 2 * base.width,
-        y: (p.y + 1) / 2 * base.height,
-    };
-    // _________________________________________________________
-    //| Normaliza as coordenadas para o espaço da tela (pixels) |
-    //|_________________________________________________________|
+function projetaTodos() {
+    const w = base.width;
+    const h = base.height;
+    for (let i = 0; i < numVerts; i++) {
+        const { x, y, z } = lugar[i];
+                                        // ______________________________________________
+        const zv = Math.max(z, 0.001);  //| Evita divisão por zero                       |
+                                        //|----------------------------------------------|
+        const px = x / zv;              //| Projeção perspectiva                         |
+        const py = y / zv;              //|                                              |
+                                        //|----------------------------------------------|
+        const t = tela[i];            //| Mapeamento para coordenadas de tela (pixels) |
+        t.x = (px + 1) * 0.5 * w;       //|______________________________________________|
+        t.y = (py + 1) * 0.5 * h;
+    }
 }
 
 // ==========================================================
-// 7. Funções de desenho
+// 8. Funções de desenho
 // ==========================================================
 function limpar() {
     con.fillStyle = fundo;
@@ -149,70 +165,63 @@ function limpar() {
     //|________________________|
 }
 
-function linha(p1, p2) {
+function desenharArestas() {
     con.strokeStyle = interior;
-    con.beginPath();
-    con.moveTo(p1.x, p1.y);
-    con.lineTo(p2.x, p2.y);
-    con.stroke();
+    for (const [i, j] of fs) {
+        const p1 = tela[i];
+        const p2 = tela[j];
+        con.beginPath();
+        con.moveTo(p1.x, p1.y);
+        con.lineTo(p2.x, p2.y);
+        con.stroke();
+    }
 }
 
-function pont({ x, y }) {
-    const a = 10;
-    con.fillStyle = interior;
-    con.fillRect(x - a / 2, y - a / 2, a, a);
-    // ____________________________________________________________
-    //| Desenha um pequeno quadrado centralizado em (x, y)          |
-    //|____________________________________________________________|
+function desenharVertices() {
+    if (!mostrarVertices) return;
+    con.fillStyle = interior;       // __________________
+    const tamanho = 10;             //| lado do quadrado |
+    for (const { x, y } of tela) {//|__________________|
+        con.fillRect(x - tamanho/2, y - tamanho/2, tamanho, tamanho);
+        // _____________________________________________________
+        //| Desenha um pequeno quadrado centralizado no vértice |
+        //|_____________________________________________________|
+    }
 }
 
 // ==========================================================
-// 8. Loop principal de animação
+// 9. Loop principal de animação
 // ==========================================================
-function quadros() {
-
-    angulo += direcao * Math.PI * dt;
-    // ____________________________________________
-    //| Aplica a rotação contínua (se não pausado) |
-    //|____________________________________________|
-
-    limpar();
-
-    for (const f of fs) {
-        for (let i = 0; i < f.length; ++i) {
-
-            const a = vs[f[i]];
-            const b = vs[f[(i + 1) % f.length]];
-            const p1 = tela(projecao(transa_Z(rotacao_xz(a, angulo), dz)));
-            const p2 = tela(projecao(transa_Z(rotacao_xz(b, angulo), dz)));
-            
-            linha(p1, p2);
-        }
-        // _________________________________________________________________
-        //| Percorre cada aresta e desenha o segmento entre seus vértices   |
-        //|_________________________________________________________________|
+let ultimoTempo = 0;
+function loop(agora) {                      
+                                            // _______________________________________________________________
+    if (agora - ultimoTempo >= 1000 / FPS) {//| Controle de FPS para manter a mesma velocidade original       |
+        ultimoTempo = agora;                //|                                                               |
+                                            //|---------------------------------------------------------------|
+        angulo += direcao * Math.PI * dt;   //| Atualiza o ângulo conforme a direção (X)                      |
+                                            //|---------------------------------------------------------------|
+        anguloX += direcaoX * Math.PI * dt;  //| Atualiza o ângulo conforme a direção (Y)                      |
+                                            //|---------------------------------------------------------------|
+        atualiza();                         //| 1. Transforma todos os vértices de uma só vez                 |
+                                            //|---------------------------------------------------------------|
+        projetaTodos();                     //| 2. Projeta todos os vértices para a tela                      |
+                                            //|---------------------------------------------------------------|
+        limpar();                           //| 3. Limpa o canvas                                             |
+                                            //|---------------------------------------------------------------|
+        desenharArestas();                  //| 4. Desenha as arestas usando os índices predefinidos          |
+                                            //|---------------------------------------------------------------|
+        desenharVertices();                 //| 5. Desenha os vértices (se ativado)                           |
+                                            //|_______________________________________________________________|
     }
 
-    // Desenha os vértices (pontos) se a opção estiver ativada
-    if (mostrarVertices) {
-        for (const v of vs) {
-            const p = tela(projecao(transa_Z(rotacao_xz(v, angulo), dz)));
-            pont(p);
-        }
-    }
-
-    setTimeout(quadros, 1000 / FPS);
-    // __________________________________________________________
-    //| Chama a si mesma a cada intervalo, criando o loop        |
-    //| de animação baseado em FPS.                              |
-    //|__________________________________________________________|
+    requestAnimationFrame(loop);
 }
 
 // ==========================================================
-// 9. Eventos dos botões
+// 10. Eventos dos botões
 // ==========================================================
 bntEsq.addEventListener("click", () => {
-    ultimaDirecao = -1;
+    ultimaDir = -1;
         if (pausa) {
         angulo -= passo;
     } else {
@@ -221,12 +230,36 @@ bntEsq.addEventListener("click", () => {
 });
 
 bntDir.addEventListener("click", () => {
-    ultimaDirecao = 1;
+    ultimaDir = 1;
     if (pausa) {
         angulo += passo;
     } else {
         direcao = 1;
     }
+});
+
+bntPos.addEventListener("click", () => {
+    ultimaDirX = 1;
+    if (pausa) {
+        anguloX += passo;
+    } else {
+        direcaoX = 1;
+    }
+});
+
+bntNeg.addEventListener("click", () => {
+    ultimaDirX = -1;
+    if (pausa) {
+        anguloX -= passo;
+    } else {
+        direcaoX = -1;
+    }
+});
+
+bntReset.addEventListener("click", () => {
+    angulo = 0;
+    anguloX = 0;
+    dz = 1;
 });
 
 bntCim.addEventListener("click", () => {
@@ -238,15 +271,17 @@ bntBai.addEventListener("click", () => {
 });
 
 bntPara.addEventListener("click", () => {
-    //                               _____________________________
+                                  // _____________________________
     pausa = !pausa;               //| Alterna o estado de pausa   |
-    if (pausa) {//                  |-----------------------------|
+    if (pausa) {                  //|-----------------------------|
         direcao = 0;              //| Para a rotação automática   |
-        bntPara.textContent = "▸";//| Ícone de "play"             |
-    } else {//                      |-----------------------------|
-        direcao = ultimaDirecao;  //| Retoma com a última direção |
-        bntPara.textContent = "⏸";//| Ícone de "pause"            |
-    }//                           //|_____________________________|
+        direcaoX = 0;             //| Ícone de "play"             | 
+        bntPara.textContent = "▸";//|                             |
+    } else {                      //|-----------------------------|
+        direcao = ultimaDir;  //| Retoma com a última direção |
+        direcaoX = ultimaDirX; //| Ícone de "pause"            |
+        bntPara.textContent = "⏸";
+    }                             //|_____________________________|
 });
 
 bntVertices.addEventListener("click", () => { //             _________________________________
@@ -255,6 +290,6 @@ bntVertices.addEventListener("click", () => { //             ___________________
 }); //                                                      |_________________________________|
 
 // ==========================================================
-// 10. Inicia a animação
+// 11. Inicia a animação
 // ==========================================================
-quadros();
+requestAnimationFrame(loop);

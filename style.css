@@ -1,3 +1,10 @@
+@font-face {
+    font-family: "Blockt";
+    src:url("../assets/Blockt.ttf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
     background: #0a0a0a;
@@ -12,10 +19,11 @@ body {
 }
 
 h1 {
-    color: #8DB600;
-    text-shadow: 2px 4px 2px #333;
+    font-family: "Blockt";
+    color: #72F2DB;
     margin-bottom: 30px;
     text-align: center;
+    font-size: 50px;
 }
 
 .principal {
@@ -53,21 +61,19 @@ canvas {
     box-sizing: border-box;
 }
 
-/* Posicionamento dos botões na grade 3x3 */
-#bntVertices { grid-column: 1; grid-row: 1; } /* canto superior esquerdo */
+#bntVertices { grid-column: 1; grid-row: 1; } 
 #bntCim      { grid-column: 2; grid-row: 1; }
 #bntEsq      { grid-column: 1; grid-row: 2; }
 #bntPara     { grid-column: 2; grid-row: 2; }
 #bntDir      { grid-column: 3; grid-row: 2; }
 #bntBai      { grid-column: 2; grid-row: 3; }
 
-/* Estilo unificado para todos os botões */
 button {
     width: 100%;
     height: 100%;
     aspect-ratio: 1/1;
     font-size: clamp(20px, 5vw, 32px);
-    background: #8DB600;
+    background: #72F2DB;
     border: none;
     border-radius: 12px;
     color: #1A1A1A;
@@ -81,7 +87,7 @@ button {
 }
 
 button:hover {
-    background: #4f6200;
+    background: #255946;
     transform: scale(1.05);
 }
 
@@ -89,7 +95,6 @@ button:active {
     transform: scale(0.95);
 }
 
-/* Ajuste fino para telas pequenas */
 @media (max-width: 600px) {
     .principal {
         gap: 15px;
