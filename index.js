@@ -44,21 +44,21 @@ const minDz = 0.2;          //| Distância mínima da câmera                   
 const maxDz = 5;            //| Distância máxima da câmera                                    |
                             //|---------------------------------------------------------------|
 let dz = 1;                 //| Distância da câmera (ajusta o tamanho aparente do objeto)     |
-let angulo = 0;             //| Ângulo atual de rotação (Y)                                   |
+let angulo = 1;             //| Ângulo atual de rotação (Y)                                   |
 let anguloX = 0;            //| Ângulo atual de rotação (X)                                   |
 let direcao = 0;            //| 1 = horário, -1 = anti-horário, 0 = parado          (Y) (⬅)  |
 let direcaoX = 0;           //| 1 = horário, -1 = anti-horário, 0 = parado          (X) (⬆)  |
 let ultimaDir = 1;          //| Última direção ativa (para quando a pausa é desligada)        |
 let ultimaDirX = 1;         //| Última direção ativa (para quando a pausa é desligada)       |
 let pausa = false;          //| Controla se a animação de rotação está pausada                |
-let mostrarVertices = false; //| Exibe ou oculta os vértices (pontos)                          |
+let mostrarVertices = false;//| Exibe ou oculta os vértices (pontos)                          |
                             //|_______________________________________________________________|
 
 const fundo = "#1A1A1A";
 const interior = "#72F2DB";
 
 // ==========================================================
-// 4. Vértices do Objeto (coordenadas 3D)
+// 4. Vértices do Objeto
 // ==========================================================
 const vs = [
     //                                    ___
@@ -77,7 +77,7 @@ const vs = [
 ];
 
 // ==========================================================
-// 5. Arestas (índices dos vértices para formar as linhas)
+// 5. Arestas
 // ==========================================================
 const fs = [
     [0, 4], [4, 1], [1, 2], [2, 3], [3, 0],
@@ -91,16 +91,28 @@ const fs = [
     //|-------------------------------------------------------------------------|
     //| É possivel adicionar mais porém é um tanto complexo mas gera resultados |
     //|_________________________________________________________________________|
+// ==========================================================
+// 6. Faces
+// ==========================================================
+const faces = [
+    [0, 4, 1, 2, 3],
+    [5, 9, 6, 7, 8],
+    [0, 4, 9, 5],
+    [4, 1, 6, 9],
+    [1, 2, 7, 6],
+    [2, 3, 8, 7],
+    [3, 0, 5, 8],
+]
 
 // ==========================================================
-// 6. Buffers reutilizáveis (otimização de desempenho)
+// 7. Buffers reutilizáveis
 // ==========================================================
                                     // __________________________________________________________________
                                     //| Em vez de criar novos objetos a cada quadro, pré-alocamos arrays |
                                     //| com objetos fixos que serão atualizados in-place.                |
 const numVerts = vs.length;         //|------------------------------------------------------------------|
 const lugar = new Array(numVerts);  //| coordenadas 3D após rotação e translação                         |
-const tela = new Array(numVerts); //| coordenadas 2D após projeção e mapeamento para tela              |
+const tela = new Array(numVerts);   //| coordenadas 2D após projeção e mapeamento para tela              |
                                     //|__________________________________________________________________|
 for (let i = 0; i < numVerts; i++) {
     lugar[i] = { x: 0, y: 0, z: 0 };
@@ -108,7 +120,7 @@ for (let i = 0; i < numVerts; i++) {
 }
 
 // ==========================================================
-// 7. Funções de transformação 
+// 8. Funções de transformação 
 // ==========================================================
 function atualiza() {
     const c = Math.cos(angulo);
@@ -148,14 +160,30 @@ function projetaTodos() {
         const px = x / zv;              //| Projeção perspectiva                         |
         const py = y / zv;              //|                                              |
                                         //|----------------------------------------------|
-        const t = tela[i];            //| Mapeamento para coordenadas de tela (pixels) |
+        const t = tela[i];              //| Mapeamento para coordenadas de tela (pixels) |
         t.x = (px + 1) * 0.5 * w;       //|______________________________________________|
         t.y = (py + 1) * 0.5 * h;
     }
 }
 
+function EleFaces() {
+    con.fillStyle = "rgba(114, 242, 219, 0.3)";
+
+    for (const face of faces) {
+        con.beginPath();
+        const primeiro = tela[face[0]];
+        con.moveTo(primeiro.x, primeiro.y);
+        for (let i = 1; i < face.length; i++) {
+            const p = tela[face[i]];
+            con.lineTo(p.x, p.y);
+        }
+        con.closePath();
+        con.fill();
+    }
+}
+
 // ==========================================================
-// 8. Funções de desenho
+// 9. Funções de desenho
 // ==========================================================
 function limpar() {
     con.fillStyle = fundo;
@@ -179,8 +207,8 @@ function desenharArestas() {
 
 function desenharVertices() {
     if (!mostrarVertices) return;
-    con.fillStyle = interior;       // __________________
-    const tamanho = 10;             //| lado do quadrado |
+    con.fillStyle = interior;     // __________________
+    const tamanho = 10;           //| lado do quadrado |
     for (const { x, y } of tela) {//|__________________|
         con.fillRect(x - tamanho/2, y - tamanho/2, tamanho, tamanho);
         // _____________________________________________________
@@ -190,7 +218,7 @@ function desenharVertices() {
 }
 
 // ==========================================================
-// 9. Loop principal de animação
+// 10. Loop principal de animação
 // ==========================================================
 let ultimoTempo = 0;
 function loop(agora) {                      
@@ -200,17 +228,21 @@ function loop(agora) {
                                             //|---------------------------------------------------------------|
         angulo += direcao * Math.PI * dt;   //| Atualiza o ângulo conforme a direção (X)                      |
                                             //|---------------------------------------------------------------|
-        anguloX += direcaoX * Math.PI * dt;  //| Atualiza o ângulo conforme a direção (Y)                      |
+        anguloX += direcaoX * Math.PI * dt; //| Atualiza o ângulo conforme a direção (Y)                      |
                                             //|---------------------------------------------------------------|
-        atualiza();                         //| 1. Transforma todos os vértices de uma só vez                 |
+        EleFaces();                         //| 1. Conecta as faces se baseando nas vertices                  |
                                             //|---------------------------------------------------------------|
-        projetaTodos();                     //| 2. Projeta todos os vértices para a tela                      |
+        atualiza();                         //| 2. Transforma todos os vértices de uma só vez                 |
                                             //|---------------------------------------------------------------|
-        limpar();                           //| 3. Limpa o canvas                                             |
+        projetaTodos();                     //| 3. Projeta todos os vértices para a tela                      |
                                             //|---------------------------------------------------------------|
-        desenharArestas();                  //| 4. Desenha as arestas usando os índices predefinidos          |
+        limpar();                           //| 4. Limpa o canvas                                             |
                                             //|---------------------------------------------------------------|
-        desenharVertices();                 //| 5. Desenha os vértices (se ativado)                           |
+        EleFaces();                         //| 5. Conecta as faces se baseando nas vertices                  |
+                                            //|---------------------------------------------------------------|
+        desenharArestas();                  //| 6. Desenha as arestas usando os índices predefinidos          |
+                                            //|---------------------------------------------------------------|
+        desenharVertices();                 //| 7. Desenha os vértices (se ativado)                           |
                                             //|_______________________________________________________________|
     }
 
@@ -218,48 +250,59 @@ function loop(agora) {
 }
 
 // ==========================================================
-// 10. Eventos dos botões
+// 11. Eventos dos botões
 // ==========================================================
 bntEsq.addEventListener("click", () => {
     ultimaDir = -1;
+    ultimaDirX = 0;
         if (pausa) {
         angulo -= passo;
     } else {
         direcao = -1;
+        direcaoX = 0;
     }
 });
 
 bntDir.addEventListener("click", () => {
     ultimaDir = 1;
+    ultimaDirX = 0;
     if (pausa) {
         angulo += passo;
     } else {
         direcao = 1;
+        direcaoX = 0;
     }
 });
 
 bntPos.addEventListener("click", () => {
     ultimaDirX = 1;
+    ultimaDir = 0;
     if (pausa) {
         anguloX += passo;
     } else {
         direcaoX = 1;
+        direcao = 0;
     }
 });
 
 bntNeg.addEventListener("click", () => {
     ultimaDirX = -1;
+    ultimaDir = 0;
     if (pausa) {
         anguloX -= passo;
     } else {
         direcaoX = -1;
+        direcao = 0;
     }
 });
 
 bntReset.addEventListener("click", () => {
-    angulo = 0;
+    angulo = 1;
     anguloX = 0;
-    dz = 1;
+    direcao = 0;
+    direcaoX = 0;
+    ultimaDir = 0;
+    ultimaDirX = 0;
 });
 
 bntCim.addEventListener("click", () => {
@@ -278,10 +321,10 @@ bntPara.addEventListener("click", () => {
         direcaoX = 0;             //| Ícone de "play"             | 
         bntPara.textContent = "▸";//|                             |
     } else {                      //|-----------------------------|
-        direcao = ultimaDir;  //| Retoma com a última direção |
-        direcaoX = ultimaDirX; //| Ícone de "pause"            |
-        bntPara.textContent = "⏸";
-    }                             //|_____________________________|
+        direcao = ultimaDir;      //| Retoma com a última direção |
+        direcaoX = ultimaDirX;    //| Ícone de "pause"            |
+        bntPara.textContent = "⏸";//|_____________________________|
+    }
 });
 
 bntVertices.addEventListener("click", () => { //             _________________________________
