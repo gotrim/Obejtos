@@ -1,4 +1,4 @@
-# Estudo 3D
+# Analise 3D
 
 <p align="center">
   <a href="https://gotrim.github.io/Obejtos/">
