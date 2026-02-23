@@ -322,7 +322,7 @@ bntPara.addEventListener("click", () => {
         bntPara.textContent = "▸";//|                             |
     } else {                      //|-----------------------------|
         direcao = ultimaDir;      //| Retoma com a última direção |
-        direcaoX = ultimaDirX;    //| Ícone de "pause"            |
+        direcaoX = ultimaDirX;    //| Ícone de "pause"           |
         bntPara.textContent = "⏸";//|_____________________________|
     }
 });
