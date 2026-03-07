@@ -252,7 +252,25 @@ function loop(agora) {
 // ==========================================================
 // 11. Eventos dos botões
 // ==========================================================
-bntEsq.addEventListener("click", () => {
+
+document.addEventListener('keydown', (event) => {
+    switch(event.key) {
+            case "ArrowUp":
+                Pos();
+                break;
+            case "ArrowDown":
+                Neg();
+                break;
+            case "ArrowRight":
+                Esq();
+                break;
+            case "ArrowLeft":
+                Dir();
+                break;
+            }
+});
+
+function Esq(){
     ultimaDir = -1;
     ultimaDirX = 0;
         if (pausa) {
@@ -261,9 +279,9 @@ bntEsq.addEventListener("click", () => {
         direcao = -1;
         direcaoX = 0;
     }
-});
+}
 
-bntDir.addEventListener("click", () => {
+function Dir(){
     ultimaDir = 1;
     ultimaDirX = 0;
     if (pausa) {
@@ -272,9 +290,9 @@ bntDir.addEventListener("click", () => {
         direcao = 1;
         direcaoX = 0;
     }
-});
+}
 
-bntPos.addEventListener("click", () => {
+function Pos(){
     ultimaDirX = 1;
     ultimaDir = 0;
     if (pausa) {
@@ -283,9 +301,9 @@ bntPos.addEventListener("click", () => {
         direcaoX = 1;
         direcao = 0;
     }
-});
+}
 
-bntNeg.addEventListener("click", () => {
+function Neg(){
     ultimaDirX = -1;
     ultimaDir = 0;
     if (pausa) {
@@ -294,7 +312,16 @@ bntNeg.addEventListener("click", () => {
         direcaoX = -1;
         direcao = 0;
     }
-});
+}
+
+
+bntEsq.addEventListener("click", Esq);
+
+bntDir.addEventListener("click", Dir);
+
+bntPos.addEventListener("click", Pos);
+
+bntNeg.addEventListener("click", Neg);
 
 bntReset.addEventListener("click", () => {
     angulo = 0;
@@ -312,16 +339,16 @@ bntBai.addEventListener("click", () => {
 });
 
 bntPara.addEventListener("click", () => {
-                                  // _____________________________
-    pausa = !pausa;               //| Alterna o estado de pausa   |
-    if (pausa) {                  //|-----------------------------|
-        direcao = 0;              //| Para a rotação automática   |
-        direcaoX = 0;             //| Ícone de "play"             | 
-        bntPara.textContent = "▸";//|                             |
-    } else {                      //|-----------------------------|
-        direcao = ultimaDir;      //| Retoma com a última direção |
-        direcaoX = ultimaDirX;    //| Ícone de "pause"           |
-        bntPara.textContent = "⏸";//|_____________________________|
+                                    // _____________________________
+    pausa = !pausa;                 //| Alterna o estado de pausa   |
+    if (pausa) {                    //|-----------------------------|
+        direcao = 0;                //| Para a rotação automática   |
+        direcaoX = 0;               //| Ícone de "play"             | 
+        bntPara.textContent = "▸";  //|                             |
+    } else {                        //|-----------------------------|
+        direcao = ultimaDir;        //| Retoma com a última direção |
+        direcaoX = ultimaDirX;      //| Ícone de "pause"            |
+        bntPara.textContent = "⏸"; //|_____________________________|
     }
 });
 
