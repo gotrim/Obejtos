@@ -297,12 +297,10 @@ bntNeg.addEventListener("click", () => {
 });
 
 bntReset.addEventListener("click", () => {
-    angulo = 1;
+    angulo = 0;
     anguloX = 0;
     direcao = 0;
     direcaoX = 0;
-    ultimaDir = 0;
-    ultimaDirX = 0;
 });
 
 bntCim.addEventListener("click", () => {
