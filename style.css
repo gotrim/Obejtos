@@ -62,11 +62,11 @@ canvas {
 }
 
 #bntVertices { grid-column: 1; grid-row: 1; } 
-#bntCim      { grid-column: 2; grid-row: 1; }
+#bntCim      { grid-column: 3; grid-row: 1; }
 #bntEsq      { grid-column: 1; grid-row: 2; }
 #bntPara     { grid-column: 2; grid-row: 2; }
 #bntDir      { grid-column: 3; grid-row: 2; }
-#bntBai      { grid-column: 2; grid-row: 3; }
+#bntBai      { grid-column: 1; grid-row: 3; }
 
 button {
     width: 100%;
