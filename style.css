@@ -19,7 +19,7 @@ body {
 }
 
 h1 {
-    font-family: "Blockt";
+    font-family: "Blockt", sans-serif;
     color: #72F2DB;
     margin-bottom: 30px;
     text-align: center;
